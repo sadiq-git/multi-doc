@@ -1,0 +1,19 @@
+sudo: required
+services:
+    - docker
+before_install:
+    - docker build -t sadiqkarur/test -f ./client/Dockerfile.dev ./client
+script:
+    - docker run -e CI=true sadiqkarur/test npm test -- --coverage
+after-success:
+    - docker build -t sadiqkarur/app-client ./client
+    - docker build -t sadiqkarur/app-nginx ./nginx
+    - docker build -t sadiqkarur/app-server ./server
+    - docker build -t sadiqkarur/app-worker ./worker
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+    - docker push sadiqkarur/app-client
+    - docker push sadiqkarur/app-nginx
+    - docker push sadiqkarur/app-server
+    - docker push sadiqkarur/app-worker
+
+
